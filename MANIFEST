@@ -1,5 +1,6 @@
-lib/Wx/Polygon.pm
+Changes
+Polygon.pm
+Polygon.xs
 MANIFEST
 Makefile.PL
-test.pl
-wxglade/dlg.wxg
+README.txt

@@ -1,0 +1,4 @@
+0.03 Changed the calculations from Perl to C to get a 
+     performance boost. This makes us dependent on wxMakeMaker.
+
+0.02 Planar prerequisite is no longer.

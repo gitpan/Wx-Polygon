@@ -3,9 +3,20 @@ package Wx::Polygon;
 use Wx qw(:everything);
 use strict;
 
-our $VERSION='0.02';
+our $VERSION='0.03';
 
 my $pi2_360=(2.0*3.1459265)/360.0;
+
+##############################################################
+# Boot the C part
+##############################################################
+
+#use Wx::PolygonCalc;
+Wx::wx_boot( 'Wx::Polygon', $VERSION );
+
+##############################################################
+# Construction
+##############################################################
 
 sub new {
   my $class=shift;
@@ -38,22 +49,17 @@ sub new {
   $self->{'x-off'}=0;
   $self->{'y-off'}=0;
   $self->{'scale'}=1.0;
-  my @save=@{$self->{'polygon'}};
+  my @save;
+  for my $p (@{$self->{'polygon'}}) {
+    my $s=new Wx::Point($p->x,$p->y);
+    push @save,$s;
+  }
   $self->{'saved'}=\@save;
+  $self->{'points'}=scalar @save;
 
   $self->{'color'}=new Wx::Brush(new Wx::Colour(255,255,255),wxSOLID);
 
 return $self;
-}
-
-sub draw {
-  my ($self,$dc)=@_;
-  my $xoff=$self->{'x-off'};
-  my $yoff=$self->{'y-off'};
-
-  $dc->SetBrush($self->{'color'});
-  $dc->DrawPolygon($self->{'polygon'},$xoff,$yoff);
-  $dc->SetBrush(wxNullBrush);
 }
 
 sub copy {
@@ -66,12 +72,7 @@ sub copy {
   }
 
   my $npol=new Wx::Graphics( 'POLYGON' => \@p );
-  if ($self->{'scale'}!=1.0) {
-    $npol->scale($self->{'scale'});
-  }
-  if ($self->{'degrees'}!=0) {
-    $npol->rotate($self->{'degrees'});
-  }
+  $npol->recalc();
   if (defined $self->{'rgb.r'}) {
     $npol->set_color($self->{'rgb.r'},
 		     $self->{'rgb.g'},
@@ -80,42 +81,6 @@ sub copy {
   }
 
   return $npol;
-}
-
-sub scale {
-  my ($self,$scale)=@_;
-  my @n;
-
-  $self->{'scale'}=$scale;
-  for my $p (@{$self->{'saved'}}) {
-    my $np=new Wx::Point($p->x*$scale,$p->y*$scale);
-    push @n,$np;
-  }
-  $self->{'polygon'}=\@n;
-}
-
-sub rotate {
-  my ($self,$deg)=@_;
-  my $C=cos($pi2_360*$deg);
-  my $S=sin($pi2_360*$deg);
-  my @n;
-
-  $self->{'rotate'}=$deg;
-
-  for my $p (@{$self->{'saved'}}) {
-    my $x=$p->x;
-    my $y=$p->y;
-    my $np=new Wx::Point($x*$C-$y*$S,$x*$S+$y*$C);
-    push @n,$np;
-  }
-
-  $self->{'polygon'}=\@n;
-}
-
-sub offset {
-  my ($self,$x,$y)=@_;
-  $self->{'x-off'}=$x;
-  $self->{'y-off'}=$y;
 }
 
 sub generate_ellipse {
@@ -141,19 +106,71 @@ sub add_point {
   my $p=new Wx::Point($x,$y);
   push @{$self->{'polygon'}},$p;
   push @{$self->{'saved'}},$p;
-  push @{$self->{'planar_polygon'}},[$x,$y];
+  $self->{'points'}+=1;
   if ($recalc) { $self->recalc(); }
 }
 
-sub recalc {
-  my $self=shift;
-  if ($self->{'scale'}!=1.0) {
-    $self->scale($self->{'scale'});
-  }
-  if ($self->{'degrees'}!=0) {
-    $self->rotate($self->{'degrees'});
-  }
+
+##############################################################
+# Drawing
+##############################################################
+
+sub draw {
+  my ($self,$dc)=@_;
+  my $xoff=$self->{'x-off'};
+  my $yoff=$self->{'y-off'};
+
+  $dc->SetBrush($self->{'color'});
+  $dc->DrawPolygon($self->{'polygon'},$xoff,$yoff);
+  $dc->SetBrush(wxNullBrush);
 }
+
+##############################################################
+# Setting properties
+##############################################################
+
+sub scale {
+  my ($self,$scale)=@_;
+  $self->{'scale'}=$scale;
+  $self->recalc();
+}
+#   for my $p (@{$self->{'saved'}}) {
+#     my $np=new Wx::Point($p->x*$scale,$p->y*$scale);
+#     push @n,$np;
+#   }
+#   $self->{'polygon'}=\@n;
+# }
+
+sub rotate {
+  my ($self,$deg)=@_;
+
+  $self->{'degrees'}=$deg;
+  $self->recalc();
+}
+
+#   c_calculate($self->{'points'},$deg,$self->{'saved'},$self->{'polygon'});
+#   my $C=cos($pi2_360*$deg);
+#   my $S=sin($pi2_360*$deg);
+#   my @n;
+
+#   $self->{'rotate'}=$deg;
+
+#   for my $p (@{$self->{'saved'}}) {
+#     my $x=$p->x;
+#     my $y=$p->y;
+#     my $np=new Wx::Point($x*$C-$y*$S,$x*$S+$y*$C);
+#     push @n,$np;
+#   }
+
+#   $self->{'polygon'}=\@n;
+# }
+
+sub offset {
+  my ($self,$x,$y)=@_;
+  $self->{'x-off'}=$x;
+  $self->{'y-off'}=$y;
+}
+
 
 sub set_color {
   my ($self,$r,$g,$b)=@_;
@@ -163,53 +180,91 @@ sub set_color {
   $self->{'color'}=new Wx::Brush(new Wx::Colour($r,$g,$b),wxSOLID);
 }
 
+##############################################################
+# Calculations (the C part)
+##############################################################
+
+sub recalc {
+  my $self=shift;
+#  Wx::PolygonCalc::C_RotateAndScale(
+  Wx::Polygon::C_RotateAndScale(
+		   $self->{'points'},
+		   $self->{'scale'},
+		   $self->{'scale'},
+		   $self->{'degrees'},
+		   $self->{'saved'},
+		   $self->{'polygon'}
+		   );
+}
+
 sub mid {
   my ($self)=@_;
-  my ($minx,$miny,$maxx,$maxy)=(30000,30000,-30000,-30000);
+  my $midx;
+  my $midy;
+  my @M;
 
-  for my $p (@{$self->{'polygon'}}) {
-    if ($minx>$p->x) { $minx=$p->x; }
-    if ($maxx<$p->x) { $maxx=$p->x; }
-    if ($miny>$p->y) { $miny=$p->y; }
-    if ($maxy<$p->y) { $maxy=$p->y; }
-  }
+  Wx::Polygon::C_FindMid(
+            $self->{'points'},
+	    $self->{'polygon'},
+	    $self->{'x-off'},$self->{'y-off'},
+	    \@M
+	    );
 
-return ( $self->{'x-off'}+(($maxx-$minx)/2+$minx), $self->{'y-off'}+(($maxy-$miny)/2+$miny) );
+return @M;
+
+#   my ($minx,$miny,$maxx,$maxy)=(30000,30000,-30000,-30000);
+
+#   for my $p (@{$self->{'polygon'}}) {
+#     if ($minx>$p->x) { $minx=$p->x; }
+#     if ($maxx<$p->x) { $maxx=$p->x; }
+#     if ($miny>$p->y) { $miny=$p->y; }
+#     if ($maxy<$p->y) { $maxy=$p->y; }
+#   }
+
+# return ( $self->{'x-off'}+(($maxx-$minx)/2+$minx), $self->{'y-off'}+(($maxy-$miny)/2+$miny) );
 }
 
 
 sub in {
   my ($self,$x,$y)=@_;
-  my $yes=0;
 
-  my $i;
-  my $j;
+#  return Wx::PolygonCalc::C_In(
+  return Wx::Polygon::C_In(
+              $self->{'points'},
+	      $self->{'polygon'},
+	      $x,$y,
+	      $self->{'x-off'},$self->{'y-off'}
+	      );
+#   my $yes=0;
 
-  $x-=$self->{'x-off'};
-  $y-=$self->{'y-off'};
+#   my $i;
+#   my $j;
 
-  my $N=scalar @{$self->{'polygon'}};
-  my $pol=$self->{'polygon'};
+#   $x-=$self->{'x-off'};
+#   $y-=$self->{'y-off'};
 
-  for ($i=0,$j=$N-1;$i<$N;$j=$i++) {
-    my $ypi=$pol->[$i]->y;
-    my $ypj=$pol->[$j]->y;
-    my $xpi=$pol->[$i]->x;
-    my $xpj=$pol->[$j]->x;
+#   my $N=scalar @{$self->{'polygon'}};
+#   my $pol=$self->{'polygon'};
 
-    if (((($ypi<=$y) and ($y<$ypj)) or
-	 (($ypj<=$y) and ($y<$ypi))) and
-	($x<($xpj-$xpi)*($y-$ypi)/($ypj-$ypi)+$xpi)) {
-      $yes=!$yes;
-    }
-  }
+#   for ($i=0,$j=$N-1;$i<$N;$j=$i++) {
+#     my $ypi=$pol->[$i]->y;
+#     my $ypj=$pol->[$j]->y;
+#     my $xpi=$pol->[$i]->x;
+#     my $xpj=$pol->[$j]->x;
 
-  if ($yes) {
-    return 1;
-  }
-  else {
-    return 0;
-  }
+#     if (((($ypi<=$y) and ($y<$ypj)) or
+# 	 (($ypj<=$y) and ($y<$ypi))) and
+# 	($x<($xpj-$xpi)*($y-$ypi)/($ypj-$ypi)+$xpi)) {
+#       $yes=!$yes;
+#     }
+#   }
+
+#   if ($yes) {
+#     return 1;
+#   }
+#   else {
+#     return 0;
+#   }
 
 }
 
