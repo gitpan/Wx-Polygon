@@ -1,0 +1,5 @@
+lib/Wx/Polygon.pm
+MANIFEST
+Makefile.PL
+test.pl
+wxglade/dlg.wxg
