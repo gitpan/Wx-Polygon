@@ -18,6 +18,20 @@ if (not $r) {
       "Please install Wx-0.16 or above\n";
 }
 
+use Config;
+
+if ($Config{'osname'} eq "MSWin32") {
+  my $w=$ENV{'WXDIR'}.$ENV{'WXWIN'}."";
+  if ($w eq "") {
+    die "You need to let the environment variables WXDIR and WXWIN\n".
+        "point to the compiled source tree of wxWindows. E.g.:\n".
+	"\n".
+	"   set WXWIN=c:\\devel\\wx\\wxMSW-2.4.2\n".
+	"   set WXDIR=c:\\devel\\wx\\wxMSW-2.4.2\n".
+	"\n";
+  }
+}
+
 wxWriteMakefile( NAME         => 'Wx::Polygon',
                  VERSION_FROM => 'Polygon.pm',
                  LIBS         => ( '' ),

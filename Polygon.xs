@@ -9,10 +9,30 @@
 //              modify it under Artistic license
 /////////////////////////////////////////////////////////////////////////////
 
+/*
+ * STRICT already there for MinGW
+ */
+
+#ifndef __MINGW32__
 #define STRICT
+#endif
 
 #include <wx/defs.h>
 #include "wx/window.h"
+
+/* 
+ * Work around a compatibility bug with Perl 5(.8.3) and MinGW.
+ * uid_t and gid_t are C-Macros on MinGW platforms. We're undefining
+ * them.
+ */
+
+#ifdef __MINGW32__
+#undef uid_t
+#undef gid_t
+#define uid_t BUG_uid_t
+#define gid_t BUG_gid_t
+#endif
+
 #include "cpp/wxapi.h"
 
 MODULE=Wx__Polygon PACKAGE=Wx::Polygon

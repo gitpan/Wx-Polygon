@@ -1,3 +1,6 @@
+0.04 - Test script was not in MANIFEST.
+     - Making on Win32 was not as simple as expected.
+
 0.03 Changed the calculations from Perl to C to get a 
      performance boost. This makes us dependent on wxMakeMaker.
 
