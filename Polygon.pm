@@ -1,9 +1,20 @@
+# 
+# Name:        Polygon.pm
+# Purpose:     Manipulate and draw polygons on wxPerl
+# Author:      Hans Oesterholt-Dijkema
+# Modified by:
+# Created:     19-4-2004
+# RCS-ID:      $Id: Polygon.pm,v 1.3 2004/04/20 08:59:36 cvs Exp $
+# Copyright:   (c) 2004 Hans Oesterholt-Dijkema
+# Licence:     This program is free software; you can redistribute it and/or
+#              modify it under Artistic license
+#
 package Wx::Polygon;
 
 use Wx qw(:everything);
 use strict;
 
-our $VERSION='0.05';
+our $VERSION='0.06';
 
 my $pi2_360=(2.0*3.1459265)/360.0;
 

@@ -1,13 +1,14 @@
-// Name:        Polygon.xs
-// Purpose:     Do calculations on Polygons fast
-// Author:      Hans Oesterholt-Dijkema
-// Modified by:
-// Created:     19-4-2004
-// RCS-ID:      $Id: Polygon.xs,v 1.1 2004/04/19 19:01:00 cvs Exp $
-// Copyright:   (c) 2004 Mattia Barbon
-// Licence:     This program is free software; you can redistribute it and/or
-//              modify it under Artistic license
-/////////////////////////////////////////////////////////////////////////////
+/*
+ * Name:        Polygon.xs
+ * Purpose:     Do calculations on Polygons fast
+ * Author:      Hans Oesterholt-Dijkema
+ * Modified by:
+ * Created:     19-4-2004
+ * RCS-ID:      $Id: Polygon.xs,v 1.2 2004/04/20 08:59:36 cvs Exp $
+ * Copyright:   (c) 2004 Hans Oesterholt-Dijkema
+ * Licence:     This program is free software; you can redistribute it and/or
+ *              modify it under Artistic license
+*/
 
 /*
  * STRICT already there for MinGW

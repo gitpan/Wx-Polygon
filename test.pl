@@ -15,6 +15,8 @@ use Wx::Event qw(EVT_BUTTON EVT_PAINT);
 
 ###
 use Wx::Polygon;
+
+print "ok 1\n";
 ###
 
 sub new {
@@ -64,6 +66,7 @@ sub __set_properties {
 
 	print "IN    : ",$self->{"leaf"}->in(50,10),"\n";
 	print "NOT IN: ",$self->{"leaf"}->in(20,5),"\n";
+	print "ok 2\n";
 
 	EVT_PAINT($self->{panel_1},sub { paint($self,@_); });
 	EVT_BUTTON($self,$self->{button_2},\&StopStart);
@@ -147,5 +150,6 @@ my $a= new TestApp;
 $a->MainLoop();
 
 END {
+  print "ok 3\n";
   exit(0);
 }
