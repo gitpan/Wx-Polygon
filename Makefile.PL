@@ -4,7 +4,7 @@
 ## Author:      Hans Oesterholt-Dijkema
 ## Modified by:
 ## Created:     19-4-2004
-## RCS-ID:      $Id: Makefile.PL,v 1.3 2004/04/19 18:25:05 cvs Exp $
+## RCS-ID:      $Id: Makefile.PL,v 1.4 2004/04/19 19:01:00 cvs Exp $
 ## Copyright:   (c) 2004 Hans Oesterholt-Dijkema
 ## Licence:     This program is free software; you can redistribute it and/or
 ##              modify it under Artistic license.

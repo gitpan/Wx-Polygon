@@ -3,7 +3,7 @@
 // Author:      Hans Oesterholt-Dijkema
 // Modified by:
 // Created:     19-4-2004
-// RCS-ID:      $Id$
+// RCS-ID:      $Id: Polygon.xs,v 1.1 2004/04/19 19:01:00 cvs Exp $
 // Copyright:   (c) 2004 Mattia Barbon
 // Licence:     This program is free software; you can redistribute it and/or
 //              modify it under Artistic license

@@ -122,7 +122,7 @@ sub paint {
   $self->{"leaf"}->rotate($self->{'degrees'});
 
   if (not $self->{"stopped"}) {
-    $self->Refresh();
+    $window->Refresh();
   }
 }
 

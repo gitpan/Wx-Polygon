@@ -3,7 +3,7 @@ package Wx::Polygon;
 use Wx qw(:everything);
 use strict;
 
-our $VERSION='0.04';
+our $VERSION='0.05';
 
 my $pi2_360=(2.0*3.1459265)/360.0;
 

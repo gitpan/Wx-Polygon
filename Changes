@@ -1,3 +1,7 @@
+0.05 - Test script: Changed refresh from
+       whole window to only the Panel
+       used for the drawing.
+
 0.04 - Test script was not in MANIFEST.
      - Making on Win32 was not as simple as expected.
 
